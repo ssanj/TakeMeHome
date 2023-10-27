@@ -1,0 +1,5 @@
+[
+    { "caption": "TakeMeHome: mark file", "command": "take_me_home", "args": { "action": "mark"} },
+    { "caption": "TakeMeHome: unmark file", "command": "take_me_home", "args": { "action": "unmark"} },
+    { "caption": "TakeMeHome: list marks", "command": "take_me_home", "args": { "action": "list"} },
+]

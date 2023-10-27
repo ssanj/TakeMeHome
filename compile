@@ -1,0 +1,8 @@
+#!/bin/bash
+cd  ..
+
+# Compile the project without changes
+MYPYPATH=./TakeMeHome/typings mypy  TakeMeHome/TakeMeHome.py
+
+# Watch for changes and compile the project each time
+MYPYPATH=./TakeMeHome/typings chokidar "./TakeMeHome/**/*.py" -c "mypy  TakeMeHome/TakeMeHome.py"
