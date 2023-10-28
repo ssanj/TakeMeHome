@@ -30,11 +30,12 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
 
       view = self.window.active_view();
       if view:
-        if view.file_name():
+        file_name = view.file_name()
+        if file_name:
           if action == "mark":
-            return self.mark_current_file(view)
+            return self.mark_current_file(view, file_name)
           elif action == "unmark":
-            return self.unmark_current_file(view)
+            return self.unmark_current_file(view, file_name)
           elif action == "list":
             return self.list_marks(view)
           elif action == "clear":
@@ -46,34 +47,28 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
       else:
         self.debug("no active view or view has no file name")
 
-  def remove_hints(self, view: sublime.View):
-    view.erase_regions("TakeMeHome")
 
-  def mark_current_file(self, view: sublime.View):
-    self.mark_view(view)
-    self.add_hint(view)
+  def mark_current_file(self, view: sublime.View, file_name: str):
+    if not self.marked.__contains__(MF.MarkedFile(file_name, view)):
+      self.mark_view(view)
+      self.add_hint(view, file_name, "Marked")
+    else:
+      sublime.message_dialog("This file is already marked.")
 
-    cursor_pos: sublime.Region = view.sel()[0]
-    self.debug(f"cursor: {cursor_pos}")
-
-
-  def add_hint(self, view: sublime.View):
-    self.remove_hints(view)
-
-    file_name = view.file_name()
-    short_file_name = os.path.basename(file_name) if file_name else "untitled"
+  def add_hint(self, view: sublime.View, file_name: str, message: str):
+    short_file_name = os.path.basename(file_name)
     markup = '''
-    <H2>Marked {}</H2>
-    '''.format(short_file_name)
+    <H2>{} {}</H2>
+    '''.format(message, short_file_name)
 
     view.show_popup(
       content = markup,
-      max_width=600,
-      on_hide = lambda: self.remove_hints(view)
+      max_width=600
     )
 
-  def unmark_current_file(self, view: sublime.View):
+  def unmark_current_file(self, view: sublime.View, file_name: str):
     self.unmark_view(view)
+    self.add_hint(view, file_name, "Unmarked")
 
   def clear_marks(self, view: sublime.View):
     if len(self.marked) == 0:
