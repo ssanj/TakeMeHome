@@ -4,6 +4,7 @@ from typing import Optional, List, Any, Dict, Union
 from . import take_me_home_setting as SETTING
 from . import settings_loader as SETTING_LOADER
 from . import marked_file as MF
+import os
 
 class TakeMeHomeCommand(sublime_plugin.WindowCommand):
 
@@ -29,22 +30,47 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
 
       view = self.window.active_view();
       if view:
-        if action == "mark":
-          return self.mark_current_file(view)
-        elif action == "unmark":
-          return self.unmark_current_file(view)
-        elif action == "list":
-          return self.list_marks(view)
-        elif action == "clear":
-          return self.clear_marks(view)
+        if view.file_name():
+          if action == "mark":
+            return self.mark_current_file(view)
+          elif action == "unmark":
+            return self.unmark_current_file(view)
+          elif action == "list":
+            return self.list_marks(view)
+          elif action == "clear":
+            return self.clear_marks(view)
+          else:
+            self.debug(f"Unknown action: {action}. Valid actions are: mark, unmark, list, clear")
         else:
-          pass
+          sublime.message_dialog("Only views that have a file name can be marked.")
       else:
-        self.debug("no active view")
+        self.debug("no active view or view has no file name")
 
+  def remove_hints(self, view: sublime.View):
+    view.erase_regions("TakeMeHome")
 
   def mark_current_file(self, view: sublime.View):
     self.mark_view(view)
+    self.add_hint(view)
+
+    cursor_pos: sublime.Region = view.sel()[0]
+    self.debug(f"cursor: {cursor_pos}")
+
+
+  def add_hint(self, view: sublime.View):
+    self.remove_hints(view)
+
+    file_name = view.file_name()
+    short_file_name = os.path.basename(file_name) if file_name else "untitled"
+    markup = '''
+    <H2>Marked {}</H2>
+    '''.format(short_file_name)
+
+    view.show_popup(
+      content = markup,
+      max_width=600,
+      on_hide = lambda: self.remove_hints(view)
+    )
 
   def unmark_current_file(self, view: sublime.View):
     self.unmark_view(view)
@@ -58,7 +84,7 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
       self.marked.clear()
 
   def list_marks(self, view: sublime.View):
-    files = [f.file_name for f in self.marked]
+    files = ["{} - {}".format(i+1, f.file_name) for i, f in enumerate(self.marked)]
     if len(files) == 0:
       sublime.message_dialog("No files marked.\nPlease mark one or more files to list them here.")
 
