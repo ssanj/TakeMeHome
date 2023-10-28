@@ -3,4 +3,5 @@
     { "caption": "TakeMeHome: unmark file", "command": "take_me_home", "args": { "action": "unmark"} },
     { "caption": "TakeMeHome: list marks", "command": "take_me_home", "args": { "action": "list"} },
     { "caption": "TakeMeHome: clear marks", "command": "take_me_home", "args": { "action": "clear"} },
+    { "caption": "TakeMeHome: close unmarked", "command": "take_me_home", "args": { "action": "close_unmarked"} },
 ]

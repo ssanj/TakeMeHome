@@ -1,6 +1,6 @@
 import sublime
 import sublime_plugin
-from typing import Optional, List, Any, Dict, Union
+from typing import Optional, List, Any, Dict, Union, Set
 from . import take_me_home_setting as SETTING
 from . import settings_loader as SETTING_LOADER
 from . import marked_file as MF
@@ -40,6 +40,8 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
             return self.list_marks(view)
           elif action == "clear":
             return self.clear_marks(view)
+          elif action == "close_unmarked":
+            return self.close_unmarked(view)
           else:
             self.debug(f"Unknown action: {action}. Valid actions are: mark, unmark, list, clear")
         else:
@@ -47,6 +49,21 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
       else:
         self.debug("no active view or view has no file name")
 
+  def close_unmarked(self, view: sublime.View):
+    if len(self.marked) == 0:
+      sublime.message_dialog("No files marked.\nPlease mark one or more files to close unmarked views")
+      return
+
+    if sublime.yes_no_cancel_dialog("Close all unmarked views?") == sublime.DIALOG_YES:
+      self.close_other_views(view)
+
+  def close_other_views(self, view: sublime.View):
+    all_views: Set[sublime.View] =  set(self.window.views())
+    marked_views = [m.view for m in self.marked]
+    views_to_close = all_views.difference(marked_views)
+
+    for v in views_to_close:
+      v.close()
 
   def mark_current_file(self, view: sublime.View, file_name: str):
     if not self.marked.__contains__(MF.MarkedFile(file_name, view)):
