@@ -35,6 +35,8 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
           return self.unmark_current_file(view)
         elif action == "list":
           return self.list_marks(view)
+        elif action == "clear":
+          return self.clear_marks(view)
         else:
           pass
       else:
@@ -47,8 +49,19 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
   def unmark_current_file(self, view: sublime.View):
     self.unmark_view(view)
 
+  def clear_marks(self, view: sublime.View):
+    if len(self.marked) == 0:
+      sublime.message_dialog("No files marked to clear.\nPlease mark one or more files to clear them here.")
+      return
+
+    if sublime.yes_no_cancel_dialog("Remove all marks?") == sublime.DIALOG_YES:
+      self.marked.clear()
+
   def list_marks(self, view: sublime.View):
     files = [f.file_name for f in self.marked]
+    if len(files) == 0:
+      sublime.message_dialog("No files marked.\nPlease mark one or more files to list them here.")
+
     self.window.show_quick_panel(files, on_select = self.on_mark_selected)
 
   def on_mark_selected(self, index: int):
