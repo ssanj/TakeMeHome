@@ -42,12 +42,35 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
             return self.clear_marks(view)
           elif action == "close_unmarked":
             return self.close_unmarked(view)
+          elif action == "quick_jump":
+            if "index" in args:
+              index: int = args["index"]
+              return self.quick_jump(view, index)
+            else:
+              self.debug("index not specified for quick_jump.")
           else:
             self.debug(f"Unknown action: {action}. Valid actions are: mark, unmark, list, clear")
         else:
           sublime.message_dialog("Only views that have a file name can be marked.")
       else:
         self.debug("no active view or view has no file name")
+
+  def quick_jump(self, view: sublime.View, index: int):
+    num_marked = len(self.marked)
+    if num_marked == 0:
+      sublime.message_dialog("No files marked.\nPlease mark one or more files to quick jump to it")
+      return
+
+    if index > 0 and index <= num_marked:
+      jump_mark = self.marked[index - 1]
+      if jump_mark.view.is_valid():
+        self.window.focus_view(jump_mark.view)
+      else:
+        self.marked.remove(jump_mark)
+        sublime.message_dialog(f"View {view} is invalid; can't jump to it.\nIt's been removed from the mark list.")
+
+    else:
+      sublime.message_dialog(f"Invalid jump index {index}. Index must be between 1 to number of marked views")
 
   def close_unmarked(self, view: sublime.View):
     if len(self.marked) == 0:
@@ -108,6 +131,9 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
       view = self.marked[index].view
       if view.is_valid():
         self.window.focus_view(view)
+      else:
+        self.marked.remove(self.marked[index])
+        sublime.message_dialog(f"View selected {view} is now invalid. Removing from marked list")
 
   def mark_view(self, view: sublime.View):
       file_name = view.file_name()
