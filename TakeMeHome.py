@@ -24,6 +24,7 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
       sublime.message_dialog("Could not initialise plugin")
 
   def handle_actions(self, args: Dict[str, Any]):
+    self.debug(str(args))
     if args.get("action"):
       action = args.get("action")
       self.debug(f"action: {action}")
@@ -48,12 +49,19 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
               return self.quick_jump(view, index)
             else:
               self.debug("index not specified for quick_jump.")
+          elif action == "listener_close":
+            view_id = args.get("view_id")
+            if view_id:
+              self.debug(f"Call from listener close: {view_id}")
+              self.unmark_view_from_id(view_id)
+            else:
+              self.debug("Call from listener close without view id")
           else:
             self.debug(f"Unknown action: {action}. Valid actions are: mark, unmark, list, clear")
         else:
           sublime.message_dialog("Only views that have a file name can be marked.")
       else:
-        self.debug("no active view or view has no file name")
+        self.debug("no active view")
 
   def quick_jump(self, view: sublime.View, index: int):
     num_marked = len(self.marked)
@@ -146,6 +154,11 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
         m = MF.MarkedFile(file_name, view)
         self.marked.remove(m)
 
+  def unmark_view_from_id(self, view_id: int):
+      matched_views = [v.view for v in self.marked if v.view.id() == view_id]
+      if matched_views:
+        view = matched_views[0]
+        self.unmark_view(view)
 
   def is_enabled(self) -> bool:
     return True
