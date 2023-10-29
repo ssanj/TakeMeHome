@@ -49,13 +49,6 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
               return self.quick_jump(view, index)
             else:
               self.debug("index not specified for quick_jump.")
-          elif action == "listener_close":
-            view_id = args.get("view_id")
-            if view_id:
-              self.debug(f"Call from listener close: {view_id}")
-              self.unmark_view_from_id(view_id)
-            else:
-              self.debug("Call from listener close without view id")
           else:
             self.debug(f"Unknown action: {action}. Valid actions are: mark, unmark, list, clear")
         else:
@@ -76,7 +69,6 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
       else:
         self.marked.remove(jump_mark)
         sublime.message_dialog(f"View {view} is invalid; can't jump to it.\nIt's been removed from the mark list.")
-
     else:
       sublime.message_dialog(f"Invalid jump index {index}. Index must be between 1 to number of marked views")
 
