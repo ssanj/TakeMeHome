@@ -1,6 +1,6 @@
 import sublime
 import sublime_plugin
-from typing import Optional, List, Any, Dict, Union, Set
+from typing import Callable, Optional, List, Any, Dict, Union, Set
 from . import take_me_home_setting as SETTING
 from . import settings_loader as SETTING_LOADER
 from . import marked_file as MF
@@ -25,37 +25,39 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
       sublime.message_dialog("Could not initialise plugin")
 
   def handle_actions(self, args: Dict[str, Any]):
-    self.debug(str(args))
-    if args.get("action"):
-      action = args.get("action")
-      self.debug(f"action: {action}")
-
+    self.debug(f"Got args: {args}")
+    action_asked_for = args.get("action")
+    if action_asked_for:
       view = self.window.active_view();
       if view:
         file_name = view.file_name()
         if file_name:
-          if action == "mark":
-            return self.mark_current_file(view, file_name)
-          elif action == "unmark":
-            return self.unmark_current_file(view, file_name)
-          elif action == "list":
-            return self.list_marks(view)
-          elif action == "clear":
-            return self.clear_marks(view)
-          elif action == "close_unmarked":
-            return self.close_unmarked(view)
-          elif action == "quick_jump":
-            if "index" in args:
-              index: int = args["index"]
-              return self.quick_jump(view, index)
-            else:
-              self.debug("index not specified for quick_jump.")
-          else:
-            self.debug(f"Unknown action: {action}. Valid actions are: mark, unmark, list, clear")
+          self.perform_actions(action_asked_for, view, file_name, args)
         else:
           sublime.message_dialog("Only views that have a file name can be marked.")
       else:
         self.debug("no active view")
+    else:
+      self.debug(f"Could not find valid 'action' key  and value in arguments supplied: {args}")
+
+
+  def perform_actions(self, action_key: str, view: sublime.View, file_name: str, args: Dict[str, Any]):
+      actions_map: Dict[str, Callable[[sublime.View, str, Dict[str, Any]], None]] = {};
+
+      actions_map['mark']           = self.mark_current_file;
+      actions_map['unmark']         = self.unmark_current_file;
+      actions_map['list']           = self.list_marks;
+      actions_map['clear']          = self.clear_marks;
+      actions_map['close_unmarked'] = self.close_unmarked;
+      actions_map['quick_jump'] = self.perform_quick_jump;
+
+      action_to_perform = actions_map.get(action_key);
+      if action_to_perform:
+        action_to_perform(view, file_name, args)
+      else:
+        valid_actions = actions_map.keys
+        self.debug(f"Unknown action: {action_key}. Valid actions are: {valid_actions}")
+
 
   def quick_jump(self, view: sublime.View, index: int):
     num_marked = len(self.marked)
@@ -73,7 +75,14 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
     else:
       sublime.message_dialog(f"Invalid jump index {index}. Index must be between 1 to number of marked views")
 
-  def close_unmarked(self, view: sublime.View):
+  def perform_quick_jump(self, view: sublime.View, file_name: str, args: Dict[str, Any]):
+    if "index" in args:
+      index: int = args["index"]
+      return self.quick_jump(view, index)
+    else:
+      self.debug("index not specified for quick_jump.")
+
+  def close_unmarked(self, view: sublime.View, file_name: str, args: Dict[str, Any]):
     if len(self.marked) == 0:
       sublime.message_dialog("No files marked.\nPlease mark one or more files to close unmarked views")
       return
@@ -89,7 +98,7 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
     for v in views_to_close:
       v.close()
 
-  def mark_current_file(self, view: sublime.View, file_name: str):
+  def mark_current_file(self, view: sublime.View, file_name: str, args: Dict[str, Any]):
     if not self.marked.__contains__(MF.MarkedFile(file_name, view)):
       self.mark_view(view)
       self.add_hint(view, file_name, "Marked")
@@ -107,11 +116,11 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
       max_width=600
     )
 
-  def unmark_current_file(self, view: sublime.View, file_name: str):
+  def unmark_current_file(self, view: sublime.View, file_name: str, args: Dict[str, Any]):
     self.unmark_view(view)
     self.add_hint(view, file_name, "Unmarked")
 
-  def clear_marks(self, view: sublime.View):
+  def clear_marks(self, view: sublime.View, file_name: str, args: Dict[str, Any]):
     if len(self.marked) == 0:
       sublime.message_dialog("No files marked to clear.\nPlease mark one or more files to clear them here.")
       return
@@ -119,7 +128,7 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
     if sublime.yes_no_cancel_dialog("Remove all marks?") == sublime.DIALOG_YES:
       self.marked.clear()
 
-  def list_marks(self, view: sublime.View):
+  def list_marks(self, view: sublime.View, file_name: str, args: Dict[str, Any]):
     files = [self.create_quick_panel_item(i+1, f.file_name) for i, f in enumerate(self.marked)]
     if len(files) == 0:
       sublime.message_dialog("No files marked.\nPlease mark one or more files to list them here.")
