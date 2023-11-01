@@ -171,12 +171,14 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
     details = [parent_dir]
     return sublime.QuickPanelItem(file_name_only, details, str(index), kind=sublime.KIND_NAVIGATION)
 
+
   def get_relative_path(self, file_name: str, project_dir: str) -> str:
     relative_path = self.removeprefix(file_name, project_dir)
     file_name_only = os.path.basename(file_name)
     path_only = self.removesuffix(relative_path, file_name_only)
     path_without_pre_post_slashes = self.removeprefix(self.removesuffix(path_only, os.path.sep), os.path.sep)
     return path_without_pre_post_slashes if path_without_pre_post_slashes else "[project]"
+
 
   def on_mark_selected(self, index: int):
     # unselected index is -1, so watch out for that
@@ -188,10 +190,12 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
         self.marked.remove(self.marked[index])
         sublime.message_dialog(f"View selected {view} is now invalid. Removing from marked list")
 
+
   def mark_view(self, view: sublime.View):
       file_name = view.file_name()
       if file_name:
         self.marked.append(MF.MarkedFile(file_name, view))
+
 
   def unmark_view(self, view: sublime.View):
       file_name = view.file_name()
@@ -199,14 +203,20 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
         m = MF.MarkedFile(file_name, view)
         self.marked.remove(m)
 
+
   def unmark_view_from_id(self, view_id: int):
       matched_views = [v.view for v in self.marked if v.view.id() == view_id]
       if matched_views:
         view = matched_views[0]
         self.unmark_view(view)
 
+# ----------------------------------------------------------------------------------------------------------------------
+# Infrastructure related
+# ----------------------------------------------------------------------------------------------------------------------
+
   def is_enabled(self) -> bool:
     return True
+
 
   def is_visible(self) -> bool:
     return True
@@ -215,14 +225,17 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
     loaded_settings: sublime.Settings = sublime.load_settings('TakeMeHome.sublime-settings')
     return SETTING_LOADER.SettingsLoader(loaded_settings).load()
 
+
   def log_with_context(self, message: str, context: Optional[str]):
     if context is not None:
       print(f'[TakeMeHome][{context}] - {message}')
     else:
       print(f'[TakeMeHome] - {message}')
 
+
   def log(self, message: str):
     self.log_with_context(message, context=None)
+
 
   def debug(self, message: str):
     if self.settings.debug:
