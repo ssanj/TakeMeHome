@@ -44,7 +44,7 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
         actions_map['list']           = self.list_marks;
         actions_map['clear']          = self.clear_marks;
         actions_map['close_unmarked'] = self.close_unmarked;
-        actions_map['quick_jump'] = self.perform_quick_jump;
+        actions_map['quick_jump']     = self.perform_quick_jump;
 
         action_to_perform = actions_map.get(action_key);
         if action_to_perform:
@@ -94,14 +94,21 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
 
   def mark_current_file(self, view: sublime.View, args: Dict[str, Any]):
     file_name: Optional[str] = view.file_name()
+    name: Optional[str] = view.name()
     if file_name:
-      if not self.marked.__contains__(MF.MarkedFile(file_name, view)):
-        self.mark_view(view)
+      if not self.marked.__contains__(MF.MarkedFile(MF.FileType.HasFileName, file_name, view)):
+        self.mark_view_with_file_name(view, file_name)
         self.add_hint(view, file_name, "Marked")
       else:
         sublime.message_dialog("This file is already marked.")
+    elif name:
+      if not self.marked.__contains__(MF.MarkedFile(MF.FileType.HasName, name, view)):
+        self.mark_view_with_name(view, name)
+        self.add_hint(view, name, "Marked")
+      else:
+        sublime.message_dialog("This file is already marked.")
     else:
-      sublime.message_dialog("Only views that have a file name can be marked.")
+      sublime.message_dialog("Only views that have a file name or name can be marked.")
 
 
   def add_hint(self, view: sublime.View, file_name: str, message: str):
@@ -117,9 +124,13 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
 
   def unmark_current_file(self, view: sublime.View, args: Dict[str, Any]):
     file_name: Optional[str] = view.file_name()
+    name: Optional[str] = view.name()
     if file_name:
-      self.unmark_view(view)
+      self.unmark_view_with_file_name(view, file_name)
       self.add_hint(view, file_name, "Unmarked")
+    elif name:
+      self.unmark_view_with_name(view, name)
+      self.add_hint(view, name, "Unmarked")
     else:
       sublime.message_dialog("Only views that have a file name can be marked or unmarked.")
 
@@ -191,24 +202,19 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
         sublime.message_dialog(f"View selected {view} is now invalid. Removing from marked list")
 
 
-  def mark_view(self, view: sublime.View):
-      file_name = view.file_name()
-      if file_name:
-        self.marked.append(MF.MarkedFile(file_name, view))
+  def mark_view_with_file_name(self, view: sublime.View, file_name: str):
+    self.marked.append(MF.MarkedFile(MF.FileType.HasFileName, file_name, view))
 
+  def mark_view_with_name(self, view: sublime.View, name: str):
+    self.marked.append(MF.MarkedFile(MF.FileType.HasName, name, view))
 
-  def unmark_view(self, view: sublime.View):
-      file_name = view.file_name()
-      if file_name:
-        m = MF.MarkedFile(file_name, view)
-        self.marked.remove(m)
+  def unmark_view_with_file_name(self, view: sublime.View, file_name: str):
+    m = MF.MarkedFile(MF.FileType.HasFileName, file_name, view)
+    self.marked.remove(m)
 
-
-  def unmark_view_from_id(self, view_id: int):
-      matched_views = [v.view for v in self.marked if v.view.id() == view_id]
-      if matched_views:
-        view = matched_views[0]
-        self.unmark_view(view)
+  def unmark_view_with_name(self, view: sublime.View, name: str):
+    m = MF.MarkedFile(MF.FileType.HasName, name, view)
+    self.marked.remove(m)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Infrastructure related
