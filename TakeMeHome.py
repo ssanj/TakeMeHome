@@ -4,12 +4,12 @@ from typing import Callable, Optional, List, Any, Dict, Union, Set
 from . import take_me_home_setting as SETTING
 from . import settings_loader as SETTING_LOADER
 from . import marked_file as MF
-from . import mark_current_file_action as MCFA
-from . import unmark_current_file_action as UCFA
-from . import list_marks_action as LMA
-from . import clear_marks_action as CMA
-from . import close_unmarked_action as CUA
-from . import quick_jump_action as QJA
+from TakeMeHome.actions import mark_current_file_action as MCFA
+from TakeMeHome.actions import unmark_current_file_action as UCFA
+from TakeMeHome.actions import list_marks_action as LMA
+from TakeMeHome.actions import clear_marks_action as CMA
+from TakeMeHome.actions import close_unmarked_action as CUA
+from TakeMeHome.actions import quick_jump_action as QJA
 import os
 import pathlib
 

@@ -1,6 +1,6 @@
 import sublime
 from typing import Optional, Dict, Any, List, Callable
-from . import marked_file as MF
+from .. import marked_file as MF
 import os
 
 class MarkCurrentFileAction:

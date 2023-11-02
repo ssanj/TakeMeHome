@@ -1,6 +1,6 @@
 import sublime
 from typing import Optional, Dict, Any, List, Callable, Set
-from . import marked_file as MF
+from .. import marked_file as MF
 
 class CloseUnmarkedAction:
 
