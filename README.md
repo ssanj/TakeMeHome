@@ -43,6 +43,8 @@ Choose `TakeMeHome: unmark file` from the command palette to run.
 
 ### Listing marks
 
+#### Open selected
+
 Lists all marks that have been set, allowing you to jump to a marked view.
 
 Choose `TakeMeHome: list marks` from the command palette to run.
@@ -50,6 +52,9 @@ Choose `TakeMeHome: list marks` from the command palette to run.
 ```json
 { "command": "take_me_home", "args": { "action": "list"} }
 ```
+
+#### Remove selected
+If you press `SHIFT` when selecting a mark, you will be prompted whether to remove the mark from the list.
 
 ### Clearing marks
 

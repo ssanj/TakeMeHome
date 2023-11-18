@@ -16,7 +16,12 @@ class ListMarksAction:
     if len(files) == 0:
       sublime.message_dialog("No files marked.\nPlease mark one or more files to list them here.")
 
-    self.window.show_quick_panel(files, on_select = partial(self.on_mark_selected, marked))
+    self.window.show_quick_panel(
+      files,
+      on_select = partial(self.on_mark_selected, marked),
+      flags=sublime.MONOSPACE_FONT | sublime.WANT_EVENT,
+      placeholder="Enter to select and Shift + Enter to remove"
+    )
 
   def create_quick_panel_item(self, index: int, file_name: str) -> sublime.QuickPanelItem:
     file_name_only = os.path.basename(file_name)
@@ -60,12 +65,31 @@ class ListMarksAction:
     return path_without_pre_post_slashes if path_without_pre_post_slashes else "[project]"
 
 
-  def on_mark_selected(self, marked: List[MF.MarkedFile], index: int):
+  def on_mark_selected(self, marked: List[MF.MarkedFile], index: int, event: Dict[str, Any]):
     if index >= 0 and index < len(marked):
-      view = marked[index].view
-      if view.is_valid():
-        self.window.focus_view(view)
+      m = marked[index]
+      view = m.view
+      if 'modifier_keys' in event and 'shift' in event['modifier_keys'] and event['modifier_keys']['shift']:
+        file_name = os.path.basename(m.file_name)
+        if sublime.yes_no_cancel_dialog(f"Remove mark from {file_name}?") == sublime.DIALOG_YES:
+          marked.remove(m)
+          active_view = self.window.active_view()
+          if active_view:
+            self.add_hint(active_view, file_name, "Unmarked")
       else:
-        marked.remove(marked[index])
-        sublime.message_dialog(f"View selected {view} is now invalid. Removing from marked list")
+        if view.is_valid():
+          self.window.focus_view(view)
+        else:
+          marked.remove(marked[index])
+          sublime.message_dialog(f"View selected {view} is now invalid. Removing from marked list")
 
+  def add_hint(self, view: sublime.View, file_name: str, message: str):
+    short_file_name = os.path.basename(file_name)
+    markup = '''
+    <H2>{} {}</H2>
+    '''.format(message, short_file_name)
+
+    view.show_popup(
+      content = markup,
+      max_width=600
+    )
