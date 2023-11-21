@@ -13,12 +13,15 @@ class ReorderMarksAction:
     self.file_util = FU.FileUtil()
 
   def run(self, view: sublime.View, args: Dict[str, Any], marked: List[MF.MarkedFile]):
-    relative_filename: Callable[[str], str] = partial(self.file_util.get_project_relative_filename, self.window)
-    relative_filename_marked_dict: Dict[str, MF.MarkedFile] = dict([(relative_filename(m.file_name), m) for m in marked])
+    if marked:
+      relative_filename: Callable[[str], str] = partial(self.file_util.get_project_relative_filename, self.window)
+      relative_filename_marked_dict: Dict[str, MF.MarkedFile] = dict([(relative_filename(m.file_name), m) for m in marked])
 
-    input_lines = ",".join(relative_filename_marked_dict.keys())
-    on_reordered = partial(self.reorder_selection, marked, relative_filename_marked_dict)
-    self.window.show_input_panel("reorder", input_lines, on_done=on_reordered, on_cancel=None, on_change=None)
+      input_lines = ",".join(relative_filename_marked_dict.keys())
+      on_reordered = partial(self.reorder_selection, marked, relative_filename_marked_dict)
+      self.window.show_input_panel("reorder", input_lines, on_done=on_reordered, on_cancel=None, on_change=None)
+    else:
+      sublime.message_dialog("No marks to edit. Please add a few marks and then choose to reorder")
 
   def reorder_selection(self, marked: List[MF.MarkedFile], old_hash: Dict[str, MF.MarkedFile], input: str):
 
@@ -35,9 +38,7 @@ class ReorderMarksAction:
     existing_keys = set(old_hash.keys())
     to_be_removed = existing_keys.difference(supplied_keys)
     to_be_removed_files = "\n  ".join(to_be_removed)
-    self.debug(f'supplied_keys: {supplied_keys}')
-    self.debug(f'existing_keys: {existing_keys}')
-    self.debug(f'to_be_removed: {to_be_removed}')
+
     if old_mark_count == new_mark_count or (old_mark_count > new_mark_count and sublime.yes_no_cancel_dialog(f"Close the following marks?\n{to_be_removed_files}") == sublime.DIALOG_YES):
       # assume the content is valid. Check in another iteration
       new_marked: List[MF.MarkedFile] = []
@@ -50,4 +51,4 @@ class ReorderMarksAction:
 
       relative_filename: Callable[[str], str] = partial(self.file_util.get_project_relative_filename, self.window)
       order = "\n  ".join([relative_filename(m.file_name) for m in marked])
-      sublime.message_dialog(f"new order:\n{order}")
+      self.debug(f"new order:\n{order}")
