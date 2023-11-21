@@ -3,7 +3,9 @@
     { "caption": "TakeMeHome: unmark file", "command": "take_me_home", "args": { "action": "unmark"} },
     { "caption": "TakeMeHome: list marks", "command": "take_me_home", "args": { "action": "list"} },
     { "caption": "TakeMeHome: clear marks", "command": "take_me_home", "args": { "action": "clear"} },
+    { "caption": "TakeMeHome: reorder", "command": "take_me_home", "args": { "action": "reorder"} },
     { "caption": "TakeMeHome: close unmarked", "command": "take_me_home", "args": { "action": "close_unmarked"} },
     { "caption": "TakeMeHome: quick jump - 1", "command": "take_me_home", "args": { "action": "quick_jump", "index": 1} },
     { "caption": "TakeMeHome: quick jump - 2", "command": "take_me_home", "args": { "action": "quick_jump", "index": 2} },
 ]
+

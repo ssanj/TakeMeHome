@@ -10,6 +10,7 @@ from TakeMeHome.actions import list_marks_action as LMA
 from TakeMeHome.actions import clear_marks_action as CMA
 from TakeMeHome.actions import close_unmarked_action as CUA
 from TakeMeHome.actions import quick_jump_action as QJA
+from TakeMeHome.actions import reorder_marks_action as RMA
 import os
 import pathlib
 
@@ -51,6 +52,7 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
         actions_map['clear']          = CMA.ClearMarksAction(self.window, self.debug).run
         actions_map['close_unmarked'] = CUA.CloseUnmarkedAction(self.window, self.debug).run
         actions_map['quick_jump']     = QJA.QuickJumpAction(self.window, self.debug).run
+        actions_map['reorder']        = RMA.ReorderMarksAction(self.window, self.debug).run
 
         action_to_perform = actions_map.get(action_key);
         if action_to_perform:
