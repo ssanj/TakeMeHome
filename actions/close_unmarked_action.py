@@ -17,9 +17,24 @@ class CloseUnmarkedAction:
       self.close_other_views(marked)
 
   def close_other_views(self, marked: List[MF.MarkedFile]):
-    all_views: Set[sublime.View] =  set(self.window.views())
-    marked_views = [m.view for m in marked]
+    marked_views = [m.file_name for m in marked]
+    all_views_hash: Dict[str, sublime.View] = dict([(self.get_valid_name(v), v) for v in self.window.views()])
+
+    all_views: Set[str] =  set(all_views_hash.keys())
     views_to_close = all_views.difference(marked_views)
 
-    for v in views_to_close:
-      v.close()
+    for filename in views_to_close:
+      if filename in all_views_hash:
+        v = all_views_hash[filename]
+        v.close()
+
+  def get_valid_name(self, view: sublime.View) -> str:
+    file_name: Optional[str] = view.file_name()
+    name: Optional[str] = view.name()
+
+    if file_name:
+      return file_name
+    elif name:
+      return name
+    else:
+      return "[Untitled]"

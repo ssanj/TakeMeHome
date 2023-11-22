@@ -23,10 +23,6 @@ class QuickJumpAction:
 
     if index > 0 and index <= num_marked:
       jump_mark = marked[index - 1]
-      if jump_mark.view.is_valid():
-        self.window.focus_view(jump_mark.view)
-      else:
-        marked.remove(jump_mark)
-        sublime.message_dialog(f"View {view} is invalid; can't jump to it.\nIt's been removed from the mark list.")
+      self.window.open_file(jump_mark.file_name)
     else:
       sublime.message_dialog(f"Invalid jump index {index}. Index must be between 1 to number of marked views")

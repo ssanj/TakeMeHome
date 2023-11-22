@@ -9,4 +9,3 @@ class FileType(Enum):
 class MarkedFile(NamedTuple):
   file_type: FileType
   file_name: str
-  view: sublime.View

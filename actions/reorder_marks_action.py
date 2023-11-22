@@ -49,6 +49,4 @@ class ReorderMarksAction:
       marked.clear()
       marked.extend(new_marked)
 
-      relative_filename: Callable[[str], str] = partial(self.file_util.get_project_relative_filename, self.window)
-      order = "\n  ".join([relative_filename(m.file_name) for m in marked])
-      self.debug(f"new order:\n{order}")
+      sublime.message_dialog(f"Order changed")

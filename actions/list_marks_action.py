@@ -67,14 +67,8 @@ class ListMarksAction:
   def on_mark_selected(self, marked: List[MF.MarkedFile], index: int):
     if index >= 0 and index < len(marked):
       m = marked[index]
-      view = m.view
 
-      if view.is_valid():
-        self.window.focus_view(view)
-      else:
-        marked.remove(marked[index])
-        self.debug(f"invalid view: {view}, buffer:{view.buffer()}")
-        sublime.message_dialog(f"View selected {view} is now invalid. Removing from marked list")
+      self.window.open_file(m.file_name)
 
   def add_hint(self, view: sublime.View, file_name: str, message: str):
     short_file_name = os.path.basename(file_name)

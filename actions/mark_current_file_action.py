@@ -13,14 +13,14 @@ class MarkCurrentFileAction:
     file_name: Optional[str] = view.file_name()
     name: Optional[str] = view.name()
     if file_name:
-      if not marked.__contains__(MF.MarkedFile(MF.FileType.HasFileName, file_name, view)):
-        marked.append(MF.MarkedFile(MF.FileType.HasFileName, file_name, view))
+      if not marked.__contains__(MF.MarkedFile(MF.FileType.HasFileName, file_name)):
+        marked.append(MF.MarkedFile(MF.FileType.HasFileName, file_name))
         self.add_hint(view, file_name, "Marked")
       else:
         sublime.message_dialog("This file is already marked.")
     elif name:
-      if not marked.__contains__(MF.MarkedFile(MF.FileType.HasName, name, view)):
-        marked.append(MF.MarkedFile(MF.FileType.HasName, name, view))
+      if not marked.__contains__(MF.MarkedFile(MF.FileType.HasName, name)):
+        marked.append(MF.MarkedFile(MF.FileType.HasName, name))
         self.add_hint(view, name, "Marked")
       else:
         sublime.message_dialog("This file is already marked.")

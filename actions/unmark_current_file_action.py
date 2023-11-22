@@ -13,11 +13,11 @@ class unmarkCurrentFileAction:
     file_name: Optional[str] = view.file_name()
     name: Optional[str] = view.name()
     if file_name:
-      m = MF.MarkedFile(MF.FileType.HasFileName, file_name, view)
+      m = MF.MarkedFile(MF.FileType.HasFileName, file_name)
       marked.remove(m)
       self.add_hint(view, file_name, "Unmarked")
     elif name:
-      m = MF.MarkedFile(MF.FileType.HasName, name, view)
+      m = MF.MarkedFile(MF.FileType.HasName, name)
       marked.remove(m)
       self.add_hint(view, name, "Unmarked")
     else:
