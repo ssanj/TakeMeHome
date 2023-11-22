@@ -3,7 +3,7 @@ from typing import Optional, Dict, Any, List, Callable
 from .. import marked_file as MF
 import os
 
-class unmarkCurrentFileAction:
+class UnmarkCurrentFileAction:
 
   def __init__(self, window: sublime.Window, debug: Callable[[str], Any]) -> None:
     self.window = window

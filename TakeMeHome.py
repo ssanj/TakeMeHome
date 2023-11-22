@@ -47,7 +47,7 @@ class TakeMeHomeCommand(sublime_plugin.WindowCommand):
   def perform_actions(self, action_key: str, view: sublime.View, args: Dict[str, Any]):
         actions_map: Dict[str, Callable[[sublime.View, Dict[str, Any], List[MF.MarkedFile]], None]] = {};
         actions_map['mark']           = MCFA.MarkCurrentFileAction(self.window, self.debug).run
-        actions_map['unmark']         = UCFA.unmarkCurrentFileAction(self.window, self.debug).run
+        actions_map['unmark']         = UCFA.UnmarkCurrentFileAction(self.window, self.debug).run
         actions_map['list']           = LMA.ListMarksAction(self.window, self.debug).run
         actions_map['clear']          = CMA.ClearMarksAction(self.window, self.debug).run
         actions_map['close_unmarked'] = CUA.CloseUnmarkedAction(self.window, self.debug).run
