@@ -18,7 +18,8 @@ class ListMarksAction:
 
     self.window.show_quick_panel(
       files,
-      on_select = partial(self.on_mark_selected, marked),
+      on_select = partial(self.on_mark_selected, marked, view),
+      on_highlight = partial(self.on_mark_highlighted, marked),
       placeholder="Make a selection to jump to file"
     )
 
@@ -64,11 +65,22 @@ class ListMarksAction:
     return path_without_pre_post_slashes if path_without_pre_post_slashes else "[project]"
 
 
-  def on_mark_selected(self, marked: List[MF.MarkedFile], index: int):
+  def on_mark_selected(self, marked: List[MF.MarkedFile], view: sublime.View, index: int):
     if index >= 0 and index < len(marked):
       m = marked[index]
 
       self.window.open_file(m.file_name)
+    else:
+      # If a mark is not selected, then go back to the view the user was at before the popup
+      # We need this here because  'on_mark_highlighted' previews views and stops on the last view if the popup is
+      # cancelled.
+      self.window.focus_view(view)
+
+  def on_mark_highlighted(self, marked: List[MF.MarkedFile], index: int):
+    if index >= 0 and index < len(marked):
+      m = marked[index]
+
+      self.window.open_file(m.file_name, sublime.TRANSIENT)
 
   def add_hint(self, view: sublime.View, file_name: str, message: str):
     short_file_name = os.path.basename(file_name)
