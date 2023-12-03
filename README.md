@@ -43,7 +43,6 @@ Choose `TakeMeHome: unmark file` from the command palette to run.
 
 ### Listing marks
 
-#### Open selected
 
 Lists all marks that have been set, allowing you to jump to a marked view.
 
@@ -53,8 +52,26 @@ Choose `TakeMeHome: list marks` from the command palette to run.
 { "command": "take_me_home", "args": { "action": "list"} }
 ```
 
-#### Remove selected
-If you press `SHIFT` when selecting a mark, you will be prompted whether to remove the mark from the list.
+### Reorder selected
+
+By changing the order of view names listed in the input box, you can change the order of marks and hence their quick jump indexes.
+You can also delete marks by removing them from the list in the input box.
+
+For example, given the following list of marks to reorder:
+
+> README.md,actions/list_marks_action.py
+
+if we wanted `list_marks_action.py` to be the first quick jump index we could edit it to:
+
+> actions/list_marks_action.py,README.md
+
+If instead we wanted to delete `README.md` we could edit it to:
+
+> list_marks_action.py
+
+This is similar to opening the `README.md` view and selecting [Unmark File](#unmark).
+
+We could also chose to delete all view names, in which case all the marked views will be cleared. This is similar to [Clearing Marks](#clearing-marks)
 
 ### Clearing marks
 
